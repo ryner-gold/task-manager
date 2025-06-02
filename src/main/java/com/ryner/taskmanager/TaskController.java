@@ -3,7 +3,6 @@ package com.ryner.taskmanager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +30,16 @@ public class TaskController {
   @PostMapping("/tasks")
   public void createTask(@RequestBody Task task) {
     taskRepository.save(task);
+  }
+
+  @PutMapping("/tasks/{id}")
+  public void updateTaskById(@PathVariable Long id, @RequestBody Task task) {
+    Optional<Task> taskToUpdate = taskRepository.findById(id);
+    if(taskToUpdate.isPresent()){
+      Task existingTask = taskToUpdate.get();
+      existingTask.setTitle(task.getTitle());
+      taskRepository.save(existingTask);
+    }
   }
 
   @DeleteMapping("/tasks/{id}")
