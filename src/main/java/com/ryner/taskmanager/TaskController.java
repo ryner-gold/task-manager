@@ -1,9 +1,18 @@
 package com.ryner.taskmanager;
 
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TaskController {
@@ -23,19 +32,20 @@ public class TaskController {
   }
 
   @GetMapping("/tasks/{id}")
-  public Optional<Task> findTaskById(@PathVariable Long id) {
-    return taskRepository.findById(id);
+  public Task findTaskById(@PathVariable Long id) {
+    Optional<Task> optionalTask = taskRepository.findById(id);
+    return optionalTask.orElseGet(Task::new);
   }
 
   @PostMapping("/tasks")
-  public void createTask(@RequestBody Task task) {
-    taskRepository.save(task);
+  public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
+    return new ResponseEntity<>(taskRepository.save(task), HttpStatus.CREATED);
   }
 
   @PutMapping("/tasks/{id}")
   public void updateTaskById(@PathVariable Long id, @RequestBody Task task) {
     Optional<Task> taskToUpdate = taskRepository.findById(id);
-    if(taskToUpdate.isPresent()){
+    if (taskToUpdate.isPresent()) {
       Task existingTask = taskToUpdate.get();
       existingTask.setTitle(task.getTitle());
       taskRepository.save(existingTask);
